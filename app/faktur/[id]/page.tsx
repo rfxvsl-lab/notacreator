@@ -56,26 +56,6 @@ export default function FakturPage({ params }: { params: Promise<{ id: string }>
     };
   }, [id, router]);
 
-  useEffect(() => {
-    if (isPrintMode) {
-      const handleAfterPrint = () => {
-        setIsPrintMode(false);
-        // Replace URL to remove ?print=true parameter to avoid print loop on refresh
-        router.replace(`/${doc.type}/${id}`);
-      };
-      
-      window.addEventListener('afterprint', handleAfterPrint);
-      
-      setTimeout(() => {
-        window.print();
-      }, 500);
-      
-      return () => {
-        window.removeEventListener('afterprint', handleAfterPrint);
-      };
-    }
-  }, [isPrintMode, router, id, doc.type]);
-
   const calculateTotals = (currentDoc: DocumentData) => {
     const items = currentDoc.items || [];
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -126,7 +106,24 @@ export default function FakturPage({ params }: { params: Promise<{ id: string }>
 
   if (isPrintMode) {
     return (
-      <div className="bg-white max-w-[210mm] mx-auto min-h-[297mm] p-[15mm] text-black">
+      <div className="bg-gray-100 min-h-screen py-8 print:py-0 print:bg-white">
+        <div className="print:hidden fixed bottom-6 right-6 flex gap-3 shadow-2xl bg-white p-3 rounded-2xl border border-gray-200 z-50">
+          <button 
+             onClick={() => window.close()}
+             className="px-4 py-2.5 text-gray-700 hover:bg-gray-100 rounded-xl text-sm font-semibold transition-colors"
+          >
+            Tutup Tab
+          </button>
+          <button 
+             onClick={() => window.print()}
+             className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold shadow-md flex items-center gap-2 transition-transform active:scale-95"
+          >
+             <Printer size={18} />
+             Cetak / Simpan PDF
+          </button>
+        </div>
+
+        <div className="bg-white max-w-[210mm] mx-auto min-h-[297mm] p-[15mm] text-black shadow-lg print:shadow-none">
         <div className="flex justify-between items-start mb-12">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">FAKTUR</h1>
@@ -220,7 +217,8 @@ export default function FakturPage({ params }: { params: Promise<{ id: string }>
           <button
             onClick={() => {
               saveDoc(doc);
-              setIsPrintMode(true);
+              window.open(`/${doc.type}/${id}?print=true`, '_blank');
+              router.push('/');
             }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors shadow-sm"
           >

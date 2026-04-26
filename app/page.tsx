@@ -109,6 +109,7 @@ export default function Dashboard() {
                     <td className="px-6 py-4 text-right space-x-2">
                        <Link
                         href={`/${doc.type}/${doc.id}?print=true`}
+                        target="_blank"
                         className="inline-flex items-center p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
                         title="Cetak"
                       >

@@ -78,26 +78,6 @@ export default function KwitansiPage({ params }: { params: Promise<{ id: string 
     };
   }, [id, router]);
 
-  useEffect(() => {
-    if (isPrintMode) {
-      const handleAfterPrint = () => {
-        setIsPrintMode(false);
-        // Replace URL to remove ?print=true parameter to avoid print loop on refresh
-        router.replace(`/${doc.type}/${id}`);
-      };
-      
-      window.addEventListener('afterprint', handleAfterPrint);
-      
-      setTimeout(() => {
-        window.print();
-      }, 500);
-      
-      return () => {
-        window.removeEventListener('afterprint', handleAfterPrint);
-      };
-    }
-  }, [isPrintMode, router, id, doc.type]);
-
   const handleDocChange = (field: keyof DocumentData, value: any) => {
     setDoc(prev => {
       const updated = { ...prev, [field]: value };
@@ -120,7 +100,24 @@ export default function KwitansiPage({ params }: { params: Promise<{ id: string 
 
   if (isPrintMode) {
     return (
-      <div className="bg-white mx-auto min-w-[210mm] min-h-[148mm] p-[10mm] text-black" style={{maxWidth: '210mm'}}>
+      <div className="bg-gray-100 min-h-screen py-8 print:py-0 print:bg-white flex items-center justify-center print:block">
+        <div className="print:hidden fixed bottom-6 right-6 flex gap-3 shadow-2xl bg-white p-3 rounded-2xl border border-gray-200 z-50">
+          <button 
+             onClick={() => window.close()}
+             className="px-4 py-2.5 text-gray-700 hover:bg-gray-100 rounded-xl text-sm font-semibold transition-colors"
+          >
+            Tutup Tab
+          </button>
+          <button 
+             onClick={() => window.print()}
+             className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-md flex items-center gap-2 transition-transform active:scale-95"
+          >
+             <Printer size={18} />
+             Cetak / Simpan PDF
+          </button>
+        </div>
+
+        <div className="bg-white mx-auto min-w-[210mm] min-h-[148mm] p-[10mm] text-black shadow-lg print:shadow-none" style={{maxWidth: '210mm'}}>
         <div className="border-[3px] border-emerald-900 rounded-lg p-6 relative">
           <div className="text-center border-b-2 border-emerald-900 pb-4 mb-6">
             <h1 className="text-3xl font-bold tracking-widest text-emerald-900 uppercase">K W I T A N S I</h1>
@@ -188,7 +185,8 @@ export default function KwitansiPage({ params }: { params: Promise<{ id: string 
           <button
             onClick={() => {
               saveDoc(doc);
-              setIsPrintMode(true);
+              window.open(`/${doc.type}/${id}?print=true`, '_blank');
+              router.push('/');
             }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition-colors shadow-sm"
           >
