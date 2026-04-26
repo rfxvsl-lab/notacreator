@@ -204,6 +204,7 @@ export default function FakturPage({ params }: { params: Promise<{ id: string }>
           <p className="text-gray-600 text-sm whitespace-pre-wrap">{doc.notes}</p>
         </div>
       </div>
+      </div>
     );
   }
 

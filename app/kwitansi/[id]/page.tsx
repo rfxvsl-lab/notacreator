@@ -172,6 +172,7 @@ export default function KwitansiPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
