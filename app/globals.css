@@ -1,5 +1,55 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #f8fafc;
+  --color-brand-100: #f1f5f9;
+  --color-brand-200: #e2e8f0;
+  --color-brand-400: #94a3b8;
+  --color-brand-500: #818cf8; /* Soft Indigo */
+  --color-brand-600: #6366f1;
+  --color-brand-700: #4f46e5;
+  --color-brand-900: #312e81;
+  
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-500: #6ee7b7; /* Soft Mint / Emerald */
+  --color-accent-600: #34d399;
+  --color-accent-700: #059669;
+  --color-accent-900: #064e3b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-[#fdfdfd] text-slate-700 antialiased selection:bg-brand-500/30;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-300;
+}
+
+/* Glassmorphism utility */
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-white/40 shadow-[0_4px_20px_rgb(0,0,0,0.03)];
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-xl border border-white/60 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+}
+
 @media print {
   body {
     -webkit-print-color-adjust: exact !important;
@@ -12,7 +62,8 @@
     size: A4 portrait;
   }
   
-  .hidden-print {
+  .hidden-print, .print\:hidden {
     display: none !important;
   }
 }
+

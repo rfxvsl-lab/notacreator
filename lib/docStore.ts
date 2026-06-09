@@ -24,6 +24,8 @@ export interface DocumentData {
   subtotal?: number;
   discount?: number;
   tax?: number;
+  downPayment?: number;
+  isDpBilling?: boolean;
   totalAmount?: number;
   notes?: string;
 
@@ -34,9 +36,20 @@ export interface DocumentData {
   amountText?: string;
   signatureName?: string;
   signatureLocation?: string;
+  signatureImage?: string;
+  stampImage?: string;
+}
+
+export interface CompanySettings {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  logoUrl?: string;
 }
 
 const STORAGE_KEY = 'quicknota_docs';
+const SETTINGS_KEY = 'quicknota_settings';
 
 export const getDocs = (): DocumentData[] => {
   if (typeof window === 'undefined') return [];
@@ -69,6 +82,18 @@ export const deleteDoc = (id: string): void => {
   const docs = getDocs();
   const filtered = docs.filter(d => d.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+};
+
+export const getSettings = (): CompanySettings => {
+  if (typeof window === 'undefined') {
+    return { name: 'Perusahaan Anda', address: 'Jl. Contoh Alamat No. 123', phone: '08123456789', email: 'info@perusahaan.com' };
+  }
+  const data = localStorage.getItem(SETTINGS_KEY);
+  return data ? JSON.parse(data) : { name: 'Perusahaan Anda', address: 'Jl. Contoh Alamat No. 123\nKota, Negara 12345', phone: '', email: 'info@perusahaan.com' };
+};
+
+export const saveSettings = (settings: CompanySettings): void => {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 };
 
 export const formatCurrency = (amount: number): string => {
