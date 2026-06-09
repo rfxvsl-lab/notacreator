@@ -329,8 +329,8 @@ export default function FakturPage({ params }: { params: Promise<{ id: string }>
         </Link>
         <div className="flex gap-3 w-full sm:w-auto">
           <button
-            onClick={() => {
-              saveDoc(doc);
+            onClick={async () => {
+              await handleSave();
               window.open(`/${doc.type}/${id}?print=true`, '_blank');
               router.push('/');
             }}
