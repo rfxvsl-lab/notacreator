@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation';
-import { FileText, Receipt, Trash2, Edit, Printer, TrendingUp, Settings, X, Save } from 'lucide-react';
+import { FileText, Receipt, Trash2, Edit, Printer, TrendingUp, Settings, X, Save, Code, Copy, Check, ExternalLink } from 'lucide-react';
 import { DocumentData, formatCurrency, formatDate, CompanySettings } from '@/lib/docStore';
 import { getDocsAction, deleteDocAction, getSettingsAction, saveSettingsAction } from '@/lib/actions';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,6 +14,9 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const [docs, setDocs] = useState<DocumentData[]>([]);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isEmbedOpen, setIsEmbedOpen] = useState(false);
+  const [embedCopied, setEmbedCopied] = useState(false);
+  const [usePrefilledProfile, setUsePrefilledProfile] = useState(false);
   const [settings, setSettingsState] = useState<CompanySettings>({ name: '', address: '', phone: '', email: '' });
   const router = useRouter();
 
@@ -65,6 +68,10 @@ export default function Dashboard() {
     .filter(doc => doc.type === 'kwitansi')
     .reduce((sum, doc) => sum + (doc.amountNumber || 0), 0);
 
+  const embedUrl = usePrefilledProfile 
+    ? `https://notacreator.rfx.web.id/embed/faktur?name=${encodeURIComponent(settings.name)}&address=${encodeURIComponent(settings.address)}&phone=${encodeURIComponent(settings.phone)}&email=${encodeURIComponent(settings.email)}&uid=${session?.user?.id || ''}`
+    : `https://notacreator.rfx.web.id/embed/faktur?uid=${session?.user?.id || ''}`;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full relative">
       {/* Hero Section */}
@@ -84,6 +91,12 @@ export default function Dashboard() {
             className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95"
           >
             <Settings size={18} /> Profil Perusahaan
+          </button>
+          <button
+            onClick={() => setIsEmbedOpen(true)}
+            className="flex-1 md:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
+          >
+            <Code size={18} /> Kode Embed
           </button>
           <button
             onClick={() => handleCreateNew('faktur')}
@@ -140,6 +153,142 @@ export default function Dashboard() {
               <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-3">
                 <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">Batal</button>
                 <button onClick={handleSaveSettings} className="px-5 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2"><Save size={16} /> Simpan</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Embed Code Generator Modal */}
+      <AnimatePresence>
+        {isEmbedOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 hidden-print"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-indigo-50 to-purple-50">
+                <h2 className="text-lg font-bold text-slate-800 font-outfit flex items-center gap-2">
+                  <Code size={18} className="text-indigo-500" /> Embed Code Generator
+                </h2>
+                <button onClick={() => setIsEmbedOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-md hover:bg-white/60"><X size={20} /></button>
+              </div>
+              <div className="p-6 space-y-5">
+                {/* Info */}
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                  <p className="text-indigo-800 text-sm font-medium">Semua faktur yang dibuat melalui embed ini akan otomatis masuk ke dalam dashboard Anda. Silakan bagikan atau pasang di website Anda.</p>
+                </div>
+
+                {/* Options */}
+                <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex items-start gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="prefillToggle"
+                    checked={usePrefilledProfile}
+                    onChange={(e) => setUsePrefilledProfile(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                  />
+                  <div>
+                    <label htmlFor="prefillToggle" className="text-sm font-bold text-slate-800 cursor-pointer block mb-0.5">
+                      Gunakan Profil Perusahaan Saya
+                    </label>
+                    <p className="text-xs text-slate-500">
+                      Jika dicentang, profil perusahaan Anda (Nama, Alamat) akan terkunci di dalam faktur. Cocok jika embed dipasang di website Anda sendiri. Jika tidak dicentang, pengguna embed bisa mengisi profil perusahaannya sendiri (fitur White-label).
+                    </p>
+                  </div>
+                </div>
+
+                {/* Generated iframe code */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Kode iframe</label>
+                  <div className="relative">
+                    <pre className="bg-slate-900 text-emerald-400 p-4 rounded-xl text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+{`<iframe
+  src="${embedUrl}"
+  width="100%"
+  height="900"
+  style="border: none; border-radius: 12px;"
+  allow="clipboard-write"
+></iframe>`}
+                    </pre>
+                    <button
+                      onClick={() => {
+                        const code = `<iframe\n  src="${embedUrl}"\n  width="100%"\n  height="900"\n  style="border: none; border-radius: 12px;"\n  allow="clipboard-write"\n></iframe>`;
+                        navigator.clipboard.writeText(code);
+                        setEmbedCopied(true);
+                        setTimeout(() => setEmbedCopied(false), 2000);
+                      }}
+                      className="absolute top-3 right-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg transition-all backdrop-blur-sm border border-white/10"
+                    >
+                      {embedCopied ? <><Check size={14} /> Tersalin!</> : <><Copy size={14} /> Salin</>}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Direct link */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Atau langsung buka link embed</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={embedUrl}
+                      className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-600 truncate"
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(embedUrl);
+                        setEmbedCopied(true);
+                        setTimeout(() => setEmbedCopied(false), 2000);
+                      }}
+                      className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg hover:bg-slate-200 text-slate-600 transition-colors"
+                      title="Salin link"
+                    >
+                      <Copy size={16} />
+                    </button>
+                    <a
+                      href={embedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg transition-colors"
+                      title="Buka di tab baru"
+                    >
+                      <ExternalLink size={16} />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Integration guide */}
+                <div className="border-t border-slate-200 pt-5">
+                  <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <Code size={14} className="text-indigo-500" /> Integrasi Database (Opsional)
+                  </h3>
+                  <p className="text-xs text-slate-500 mb-3">Untuk menangkap data faktur yang dibuat user ke database website Anda, tambahkan JavaScript ini:</p>
+                  <pre className="bg-slate-900 text-sky-400 p-4 rounded-xl text-xs font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed">
+{`<script>
+window.addEventListener('message', function(event) {
+  if (event.data.type === 'quicknota-embed-saved') {
+    const invoice = event.data.data;
+    console.log('Faktur tersimpan:', invoice);
+    
+    // Kirim ke API backend Anda:
+    // fetch('/api/invoices', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(invoice)
+    // });
+  }
+});
+</script>`}
+                  </pre>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onClick={() => setIsEmbedOpen(false)} className="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all">Tutup</button>
               </div>
             </motion.div>
           </motion.div>
