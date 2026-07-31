@@ -72,7 +72,7 @@ export default function Dashboard() {
     .filter(doc => doc.type === 'kwitansi')
     .reduce((sum, doc) => sum + (doc.amountNumber || 0), 0);
 
-  const baseUrl = origin || 'https://notacreator.rfx.web.id';
+  const baseUrl = origin || 'https://quicknota.rfx.web.id';
   const embedUrl = usePrefilledProfile 
     ? `${baseUrl}/embed/faktur?name=${encodeURIComponent(settings.name)}&address=${encodeURIComponent(settings.address)}&phone=${encodeURIComponent(settings.phone)}&email=${encodeURIComponent(settings.email)}&uid=${session?.user?.id || ''}`
     : `${baseUrl}/embed/faktur?uid=${session?.user?.id || ''}`;

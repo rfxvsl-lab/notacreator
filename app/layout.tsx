@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://notacreator.rfx.web.id'),
+  metadataBase: new URL('https://quicknota.rfx.web.id'),
   title: {
     default: 'QuickNota | Buat Nota & Kwitansi Online Gratis',
     template: '%s | QuickNota'
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'id_ID',
-    url: 'https://notacreator.rfx.web.id',
+    url: 'https://quicknota.rfx.web.id',
     title: 'QuickNota | Buat Nota & Kwitansi Online Gratis',
     description: 'Aplikasi profesional, mudah, dan gratis untuk membuat nota, faktur (invoice), dan kwitansi secara online.',
     siteName: 'QuickNota',

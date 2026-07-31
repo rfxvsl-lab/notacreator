@@ -941,7 +941,7 @@ function EmbedFakturForm() {
               <div className="text-center mt-6 hidden-print">
                 <p className="text-xs text-slate-400">
                   Dibuat dengan{' '}
-                  <a href="https://notacreator.rfx.web.id" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-600 font-semibold">
+                  <a href="https://quicknota.rfx.web.id" target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-600 font-semibold">
                     QuickNota
                   </a>
                 </p>

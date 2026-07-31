@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/api/',
     },
-    sitemap: 'https://notacreator.rfx.web.id/sitemap.xml',
+    sitemap: 'https://quicknota.rfx.web.id/sitemap.xml',
   };
 }
