@@ -208,33 +208,33 @@ function EmbedFakturForm() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (data.success) {
-        setIsSaved(true);
-        setSavedDocId(data.id);
-        setCurrentStep(3);
-
-        // Send postMessage to parent window (for websites embedding this iframe)
-        // This allows the embedding website to capture the data for their own database
-        if (window.parent !== window) {
-          window.parent.postMessage({
-            type: 'quicknota-embed-saved',
-            data: {
-              id: data.id,
-              companyProfile: company,
-              document: {
-                ...faktur,
-                id: data.id,
-              },
-            },
-          }, '*');
-        }
-      } else {
-        alert('Gagal menyimpan dokumen. Silakan coba lagi.');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Gagal menyimpan dokumen');
       }
-    } catch (err) {
-      console.error('Save error:', err);
-      alert('Terjadi kesalahan. Silakan coba lagi.');
+
+      const data = await res.json();
+      setIsSaved(true);
+      setSavedDocId(data.id);
+      setCurrentStep(3);
+
+      // Send postMessage to parent window (for websites embedding this iframe)
+      if (window.parent !== window) {
+        window.parent.postMessage({
+          type: 'quicknota-embed-saved',
+          data: {
+            id: data.id,
+            companyProfile: company,
+            document: {
+              ...faktur,
+              id: data.id,
+            },
+          },
+        }, '*');
+      }
+    } catch (error: any) {
+      console.error('Save error:', error);
+      alert(error?.message || 'Terjadi kesalahan. Silakan coba lagi.');
     } finally {
       setIsSaving(false);
     }

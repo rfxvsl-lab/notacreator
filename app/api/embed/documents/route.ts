@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
     const id = body.id || uuidv4();
     const now = Date.now();
 
+    const companyProfileStr = body._companyProfile ? `\n\n=== Profil Pengirim ===\nNama: ${body._companyProfile.name}\nAlamat: ${body._companyProfile.address}\nTelepon: ${body._companyProfile.phone}\nEmail: ${body._companyProfile.email}` : '';
+
     const dataToSave = {
       id,
       userId: body.userId || EMBED_USER_ID,
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
       downPayment: body.downPayment || null,
       isDpBilling: body.isDpBilling || null,
       totalAmount: body.totalAmount || null,
-      notes: body.notes || null,
+      notes: (body.notes || '') + companyProfileStr || null,
       receivedFrom: body.receivedFrom || null,
       paymentFor: body.paymentFor || null,
       amountNumber: body.amountNumber || null,
@@ -59,10 +61,10 @@ export async function POST(request: NextRequest) {
       { success: true, id, message: "Dokumen berhasil disimpan" },
       { status: 201, headers: corsHeaders }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Embed API Error:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal menyimpan dokumen" },
+      { success: false, error: error?.message || "Gagal menyimpan dokumen", details: String(error) },
       { status: 500, headers: corsHeaders }
     );
   }
