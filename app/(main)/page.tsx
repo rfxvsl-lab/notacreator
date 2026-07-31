@@ -20,8 +20,12 @@ export default function Dashboard() {
   const [settings, setSettingsState] = useState<CompanySettings>({ name: '', address: '', phone: '', email: '' });
   const router = useRouter();
 
+  const [origin, setOrigin] = useState('');
+
   useEffect(() => {
     let mounted = true;
+    setOrigin(typeof window !== 'undefined' ? window.location.origin : '');
+    
     const loadData = async () => {
       if (status !== 'authenticated') return;
       try {
@@ -68,9 +72,10 @@ export default function Dashboard() {
     .filter(doc => doc.type === 'kwitansi')
     .reduce((sum, doc) => sum + (doc.amountNumber || 0), 0);
 
+  const baseUrl = origin || 'https://notacreator.rfx.web.id';
   const embedUrl = usePrefilledProfile 
-    ? `https://notacreator.rfx.web.id/embed/faktur?name=${encodeURIComponent(settings.name)}&address=${encodeURIComponent(settings.address)}&phone=${encodeURIComponent(settings.phone)}&email=${encodeURIComponent(settings.email)}&uid=${session?.user?.id || ''}`
-    : `https://notacreator.rfx.web.id/embed/faktur?uid=${session?.user?.id || ''}`;
+    ? `${baseUrl}/embed/faktur?name=${encodeURIComponent(settings.name)}&address=${encodeURIComponent(settings.address)}&phone=${encodeURIComponent(settings.phone)}&email=${encodeURIComponent(settings.email)}&uid=${session?.user?.id || ''}`
+    : `${baseUrl}/embed/faktur?uid=${session?.user?.id || ''}`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full relative">
